@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #111827; }
+        h1, h2, .font-poppins { font-family: 'Poppins', sans-serif; }
+        
+        .minimal-input {
+            border: none; border-bottom: 1px solid #e5e7eb; background-color: transparent;
+            border-radius: 0; padding: 4px 0; font-size: 0.875rem; color: #111827; font-weight: 500;
+        }
+        .minimal-input:focus { outline: none; border-bottom-color: #2563eb; }
+        .minimal-input::placeholder { color: #9ca3af; font-weight: 400; letter-spacing: 1px;}
+        
+        .custom-radio {
+            appearance: none; width: 16px; height: 16px; border: 2px solid #d1d5db; border-radius: 50%;
+            display: inline-block; position: relative; cursor: pointer;
+        }
+        .custom-radio:checked { border-color: #2563eb; }
+        .custom-radio:checked::before {
+            content: ''; width: 8px; height: 8px; background: #2563eb; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        /* Geliştirici Paneli Animasyonu */
+        #devPanel { transition: transform 0.3s ease-in-out; }
+        .panel-hidden { transform: translateX(120%); }
+        .panel-visible { transform: translateX(0); }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-10 flex justify-center overflow-x-hidden relative">
+
+    <!-- Ana Ödeme Ekranı (Değişmedi, şık tasarımı koruyoruz) -->
+    <div class="max-w-6xl w-full flex flex-col lg:flex-row gap-12 lg:gap-20">
+        
+        <!-- Sol Taraf: Shopping Cart -->
+        <div class="lg:w-2/3">
+            <h1 class="text-3xl font-bold mb-10 tracking-tight">Shopping Cart.</h1>
+            
+            <div class="grid grid-cols-12 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-100 pb-3">
+                <div class="col-span-5">Product</div>
+                <div class="col-span-2 text-center">Size</div>
+                <div class="col-span-3 text-center">Quantity</div>
+                <div class="col-span-2 text-right">Total Price</div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Ürün 1 -->
+                <div class="grid grid-cols-12 items-center border-b border-gray-50 pb-6">
+                    <div class="col-span-5 flex items-center gap-4">
+                        <div class="w-16 h-20 bg-orange-100 rounded-md flex-shrink-0"></div>
+                        <div>
+                            <p class="font-semibold text-gray-900">Sandqvist</p>
+                            <p class="text-xs text-gray-400">Zack</p>
+                        </div>
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <span class="bg-gray-50 text-gray-600 text-xs px-3 py-1.5 rounded-md border border-gray-100">35 L</span>
+                    </div>
+                    <div class="col-span-3 flex justify-center items-center gap-3 text-gray-600">
+                        <button type="button" onclick="changeQty(0, -1)" class="hover:text-black">&minus;</button>
+                        <span id="qty0" class="font-medium text-sm">2</span>
+                        <button type="button" onclick="changeQty(0, 1)" class="hover:text-black">&plus;</button>
+                    </div>
+                    <div class="col-span-2 flex justify-end items-center gap-4">
+                        <span id="price0" class="font-semibold text-sm">$221.98</span>
+                    </div>
+                </div>
+
+                <!-- Ürün 2 -->
+                <div class="grid grid-cols-12 items-center border-b border-gray-50 pb-6">
+                    <div class="col-span-5 flex items-center gap-4">
+                        <div class="w-16 h-20 bg-teal-800 rounded-md flex-shrink-0"></div>
+                        <div>
+                            <p class="font-semibold text-gray-900">Sandqvist</p>
+                            <p class="text-xs text-gray-400">Bernt</p>
+                        </div>
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <span class="bg-gray-50 text-gray-600 text-xs px-3 py-1.5 rounded-md border border-gray-100">30 L</span>
+                    </div>
+                    <div class="col-span-3 flex justify-center items-center gap-3 text-gray-600">
+                        <button type="button" onclick="changeQty(1, -1)" class="hover:text-black">&minus;</button>
+                        <span id="qty1" class="font-medium text-sm">1</span>
+                        <button type="button" onclick="changeQty(1, 1)" class="hover:text-black">&plus;</button>
+                    </div>
+                    <div class="col-span-2 flex justify-end items-center gap-4">
+                        <span id="price1" class="font-semibold text-sm">$159.99</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alt Toplam -->
+            <div class="mt-8 flex justify-between items-end">
+                <a href="#" class="text-sm font-semibold flex items-center gap-2 hover:text-blue-600 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Continue Shopping
+                </a>
+                
+                <div class="w-64 space-y-3 text-sm">
+                    <div class="flex justify-between text-gray-500">
+                        <span>Subtotal:</span>
+                        <span id="subtotal" class="font-medium text-gray-900">$381.97</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500 border-b border-gray-100 pb-4">
+                        <span>Shipping:</span>
+                        <span class="font-medium text-gray-900">Free</span>
+                    </div>
+                    <div class="flex justify-between pt-2">
+                        <span class="font-bold text-lg text-gray-900">Total:</span>
+                        <span id="grandTotal" class="font-bold text-lg text-gray-900">$381.97</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf: Payment Info -->
+        <div class="lg:w-1/3">
+            <div class="bg-[#f9fafb] rounded-[2rem] p-8 h-full shadow-sm relative">
+                <h2 class="text-2xl font-bold mb-8 tracking-tight">Payment Info.</h2>
+                
+                <form id="paymentForm">
+                    <div class="mb-8">
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-4">Payment Method:</p>
+                        <div class="space-y-4">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="radio" name="payment" class="custom-radio" checked>
+                                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                <span class="text-sm font-semibold">Credit Card</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="radio" name="payment" class="custom-radio">
+                                <svg class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                                <span class="text-sm font-semibold">PayPal</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Name On Card:</p>
+                        <input type="text" value="Ahmet Odabaşıoğlu" class="minimal-input w-full" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Card Number:</p>
+                        <input type="text" placeholder="•••• •••• •••• 2153" class="minimal-input w-full" required>
+                    </div>
+
+                    <div class="flex gap-6 mb-8">
+                        <div class="w-2/3">
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Expiration Date:</p>
+                            <div class="flex gap-4">
+                                <div class="relative w-1/2 border-b border-gray-200">
+                                    <select class="w-full appearance-none bg-transparent py-1 text-sm font-medium outline-none cursor-pointer">
+                                        <option value="05" selected>05</option><option value="06">06</option>
+                                    </select>
+                                    <svg class="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                                <div class="relative w-1/2 border-b border-gray-200">
+                                    <select class="w-full appearance-none bg-transparent py-1 text-sm font-medium outline-none cursor-pointer">
+                                        <option value="2026" selected>2026</option><option value="2027">2027</option>
+                                    </select>
+                                    <svg class="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-1/3">
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">CVV:</p>
+                            <input type="text" value="156" class="minimal-input w-full" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-8 border-b border-gray-200">
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Billing Country (Lokasyon):</p>
+                        <select id="countrySelect" class="w-full appearance-none bg-transparent py-1 text-sm font-medium outline-none cursor-pointer text-gray-600 pb-2">
+                            <option value="TR">Turkey (TR)</option>
+                            <option value="US">United States (US)</option>
+                            <option value="GB">United Kingdom (GB)</option>
+                            <option value="DE">Germany (DE)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="payBtn" class="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all flex justify-center items-center gap-2">
+                        <span id="btnText">Check Out</span>
+                    </button>
+
+                    <div id="resultText" class="mt-4 text-center text-xs font-semibold text-gray-500 min-h-[20px]"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- YENİ: GİZLİ SİMÜLASYON KONTROL PANELİ -->
+    <button onclick="toggleDevPanel()" class="fixed bottom-6 right-6 bg-gray-900 text-white p-3 rounded-full shadow-2xl hover:bg-gray-800 transition z-50 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+    </button>
+
+    <div id="devPanel" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl border-l border-gray-200 z-40 panel-hidden flex flex-col pt-20 pb-6 px-6 overflow-y-auto">
+        <h3 class="font-bold text-lg mb-4 text-gray-800">Veritabanı Simülatörü</h3>
+        <p class="text-xs text-gray-500 mb-6">Ödeme butonuna basıldığında modele gidecek gizli müşteri profilini buradan ayarlayabilirsin.</p>
+        
+        <div class="space-y-4 text-sm">
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Hesap Yaşı (Gün)</label>
+                <input type="number" id="simAge" value="180" class="w-full border border-gray-300 rounded p-2 outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Geçmiş Toplam İşlem Sayısı</label>
+                <input type="number" id="simTotalTx" value="25" class="w-full border border-gray-300 rounded p-2 outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Geçmiş Ortalama Harcama ($)</label>
+                <input type="number" id="simAvgAmt" value="50.0" class="w-full border border-gray-300 rounded p-2 outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Kartın Ait Olduğu Ülke (BIN)</label>
+                <select id="simBinCountry" class="w-full border border-gray-300 rounded p-2 outline-none focus:border-blue-500">
+                    <option value="US">United States (US)</option>
+                    <option value="TR">Turkey (TR)</option>
+                    <option value="GB">United Kingdom (GB)</option>
+                    <option value="DE">Germany (DE)</option>
+                </select>
+                <p class="text-[10px] text-gray-400 mt-1">Ödeme formundaki lokasyon ile eşleşmezse risk artar.</p>
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">CVV Doğrulama Sonucu</label>
+                <select id="simCvv" class="w-full border border-gray-300 rounded p-2 outline-none focus:border-blue-500">
+                    <option value="1">Doğru (1)</option>
+                    <option value="0">Yanlış (0)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Mantığı -->
+    <script>
+        function toggleDevPanel() {
+            const panel = document.getElementById('devPanel');
+            if (panel.classList.contains('panel-hidden')) {
+                panel.classList.remove('panel-hidden');
+                panel.classList.add('panel-visible');
+            } else {
+                panel.classList.remove('panel-visible');
+                panel.classList.add('panel-hidden');
+            }
+        }
+
+        let cartItems = [
+            { id: 0, price: 110.99, qty: 2 },
+            { id: 1, price: 159.99, qty: 1 }
+        ];
+
+        function updateCartUI() {
+            let total = 0;
+            cartItems.forEach((item, index) => {
+                document.getElementById(`qty${index}`).innerText = item.qty;
+                const rowTotal = item.price * item.qty;
+                document.getElementById(`price${index}`).innerText = "$" + rowTotal.toFixed(2);
+                total += rowTotal;
+            });
+            document.getElementById('subtotal').innerText = "$" + total.toFixed(2);
+            document.getElementById('grandTotal').innerText = "$" + total.toFixed(2);
+            return total;
+        }
+
+        function changeQty(index, delta) {
+            if (cartItems[index].qty + delta > 0) {
+                cartItems[index].qty += delta;
+                updateCartUI();
+            }
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const payBtn = document.getElementById('payBtn');
+            const btnText = document.getElementById('btnText');
+            const resultText = document.getElementById('resultText');
+            
+            btnText.innerText = "Processing...";
+            payBtn.classList.add("opacity-75", "cursor-wait");
+            payBtn.disabled = true;
+            resultText.innerText = "Yapay zeka analiz ediyor...";
+            resultText.className = "mt-4 text-center text-xs font-semibold text-gray-500 min-h-[20px]";
+
+            const currentTotal = updateCartUI(); 
+
+            // Payload artık sabit değil, simülasyon panelinden dinamik olarak çekiliyor
+            const payload = {
+                account_age_days: parseInt(document.getElementById('simAge').value), 
+                total_transactions_user: parseInt(document.getElementById('simTotalTx').value),
+                avg_amount_user: parseFloat(document.getElementById('simAvgAmt').value),
+                amount: currentTotal, 
+                promo_used: 0,
+                avs_match: 1,
+                cvv_result: parseInt(document.getElementById('simCvv').value),
+                three_ds_flag: 1,
+                shipping_distance_km: 12.5,
+                transaction_time: new Date().toISOString(),
+                country: document.getElementById('countrySelect').value,
+                bin_country: document.getElementById('simBinCountry').value,
+                channel: "web",
+                merchant_category: "fashion"
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const probabilityPercentage = (result.fraud_probability * 100).toFixed(2);
+
+                if (result.action === "REJECT") {
+                    resultText.innerHTML = `<span class="text-red-500">❌ Fraud Detected (${probabilityPercentage}%)</span>`;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Declined',
+                        text: `Security risk detected. (Fraud Probability: ${probabilityPercentage}%)`,
+                        confirmButtonColor: '#111827',
+                    });
+                } else {
+                    resultText.innerHTML = `<span class="text-green-500">✅ Safe Transaction (${probabilityPercentage}% Fraud Risk)</span>`;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Successful',
+                        text: 'Your order has been placed.',
+                        confirmButtonColor: '#2563eb',
+                    });
+                }
+            } catch (error) {
+                resultText.innerHTML = `<span class="text-yellow-600">⚠️ Bağlantı Hatası</span>`;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Connection Error',
+                    text: 'Could not connect to the backend server (FastAPI).',
+                    confirmButtonColor: '#111827',
+                });
+            } finally {
+                btnText.innerText = "Check Out";
+                payBtn.classList.remove("opacity-75", "cursor-wait");
+                payBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
